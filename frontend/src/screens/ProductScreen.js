@@ -8,7 +8,7 @@ import Message from '../components/Message'
 import { listProductDetails } from '../actions/productActions'
 
 const ProductScreen = () => {
-  const [quantity, setQuantity] = useState(0)
+  const [quantity, setQuantity] = useState(1)
   const { id } = useParams()
   const dispatch = useDispatch()
   const navigate = useNavigate()
@@ -25,14 +25,14 @@ const ProductScreen = () => {
     let qty = quantity
 
     if (operator === 'input') {
-      isNaN(value) || value === ' ' ? qty = 0 :
+      isNaN(value) || value === ' ' ? qty = 1 :
       value > countInStock ? qty = countInStock :
       qty = value
     }
     if (operator === 'increment' && quantity !== countInStock) {
       qty++
     }
-    if (operator === 'decrement' && quantity !== 0) {
+    if (operator === 'decrement' && quantity !== 1) {
       qty--
     }
 
