@@ -5,7 +5,6 @@ import { Container, Row, Col, ListGroup, InputGroup, Image, Form, Button, Card }
 import { addToCart, removeFromCart } from '../actions/cartActions'
 import { formatNumber } from '../helpers/formatHelpers'
 import Message from '../components/Message'
-import Loader from '../components/Loader'
 
 const useQuery = () => {
   const location = useLocation()
@@ -17,11 +16,10 @@ const CartScreen = () => {
   const dispatch = useDispatch()
   const { id: productId } = useParams()
   const query = useQuery()
-  
   const qty = query ? Number(query.split('=')[1]) : 1
-
   const cart = useSelector(state => state.cart)
   const { cartItems } = cart
+  const numberOfCartItems = cartItems.reduce((acc, item) => acc + item.qty, 0)
 
   useEffect(() => {
     if (productId) {
@@ -34,7 +32,6 @@ const CartScreen = () => {
     let editQty = qty
 
     if (operator === 'input') {
-      console.log(isNaN(value))
       value === '' ? editQty = '' :
       isNaN(value) ? editQty = qty :
       value > countInStock ? editQty = countInStock :
@@ -61,20 +58,26 @@ const CartScreen = () => {
   return (
     <Container>
       <h1>Shopping Cart</h1>
-      <Row>
-        <Col md={8}>
-          {
-            cartItems.length === 0 ? (
-              <>
-                <Message>Your cart is empty.</Message>
-                <Button 
-                  variant='light'
-                  onClick={() => navigate(-1)}
-                >
-                  Go Back
-                </Button>
-              </>
-            ) : (
+      {
+        cartItems.length === 0 ? (
+          <>
+            <Row>
+              <Col>
+                <Message className='block'>Your cart is empty.</Message>
+              </Col>
+            </Row>
+            <Row>
+              <Button 
+                variant='light'
+                onClick={() => navigate(-1)}
+              >
+                Go Back
+              </Button>
+            </Row>
+          </>
+        ) : (
+          <Row>
+            <Col md={8}>
               <ListGroup variant='flush'>
                 {
                   cartItems.map(item => (
@@ -145,14 +148,8 @@ const CartScreen = () => {
                   ))
                 }
               </ListGroup>
-            )
-          }
-        </Col>
-        <Col md={4}>
-          {
-            cartItems.length === 0 ? (
-              <></>
-            ) : (
+            </Col>
+            <Col md={4}>
               <Card>
                 <ListGroup variant='flush'>
                   <ListGroup.Item>
@@ -160,7 +157,7 @@ const CartScreen = () => {
                     <Row>
                       <Col>Number of items:</Col>
                       <Col style={{fontWeight: 'bold'}}>
-                        {cartItems.reduce((acc, item) => acc + item.qty, 0)}
+                        {numberOfCartItems}
                       </Col>
                     </Row>
                     <Row>
@@ -176,7 +173,7 @@ const CartScreen = () => {
                     <Button
                       type='button' 
                       className='btn-block'
-                      disabled={cartItems.length === 0}
+                      disabled={numberOfCartItems === 0}
                       onClick={checkoutHandler}
                     >
                       Proceed to Checkout
@@ -184,10 +181,10 @@ const CartScreen = () => {
                   </ListGroup.Item>
                 </ListGroup>
               </Card>
-            )
-          }
-        </Col>
-      </Row>
+            </Col>
+          </Row>
+        )
+      }
     </Container>
   )
 }
